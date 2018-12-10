@@ -1,0 +1,277 @@
+// The coding of SCORE Table in the Database.
+package com.example.deneme2;
+
+import java.util.Date;
+
+public class SCORE {
+	private   int ID;
+	private   int USER_ID;
+	private   int POINT;
+	private   Date DATE;
+	
+	public int getID() {
+		return ID;
+	}
+	public void setID(int iD) {
+		ID = iD;
+	}
+	public int getUSER_ID() {
+		return USER_ID;
+	}
+	public void setUSER_ID(int uSER_ID) {
+		USER_ID = uSER_ID;
+	}
+	public int getPOINT() {
+		return POINT;
+	}
+	public void setPOINT(int pOINT) {
+		POINT = pOINT;
+	}
+	public Date getDATE() {
+		return DATE;
+	}
+	public void setDATE(Date dATE) {
+		DATE = dATE;
+	}
+
+}
+
+// The coding of USER Table in the Database.
+package com.example.deneme2;
+
+public class USER {
+
+	private   int ID;
+	private   String NAME;
+	private   String SURNAME;
+	private   String EMAIL;
+	private   String PASSWORD;
+	
+	public int getID() {
+		return ID;
+	}
+	public void setID(int iD) {
+		ID = iD;
+	}
+	public String getNAME() {
+		return NAME;
+	}
+	public void setNAME(String nAME) {
+		NAME = nAME;
+	}
+	public String getSURNAME() {
+		return SURNAME;
+	}
+	public void setSURNAME(String sURNAME) {
+		SURNAME = sURNAME;
+	}
+	public String getEMAIL() {
+		return EMAIL;
+	}
+	public void setEMAIL(String eMAIL) {
+		EMAIL = eMAIL;
+	}
+	public String getPASSWORD() {
+		return PASSWORD;
+	}
+	public void setPASSWORD(String pASSWORD) {
+		PASSWORD = pASSWORD;
+	}
+	
+	
+}
+
+// How long circles will be waiting on the screen and the properties of "Circle.java" class 
+
+package com.example.deneme2;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+
+ 
+public class Circle {
+
+	public enum ColorEnum {
+		Red, Green, Blue;
+
+	
+		public static ColorEnum getRandom() {
+			return values()[(int) (Math.random() * values().length)];
+		}
+
+	}
+    
+	
+
+	public int Time; 
+	public Scalar ColorS;
+	public ColorEnum ColorE;
+	public Point Center;
+	public int Radius;
+	public int Value;
+	
+	public boolean isCatched = false;
+
+	public Circle() {
+		this.ColorE = ColorEnum.getRandom();
+		if (this.ColorE == ColorEnum.Red) {
+			this.Radius = 50;
+			this.Value = 30;
+			
+			this.Time = 7;
+			
+			this.isCatched = false;
+			this.ColorS = new Scalar(255, 0, 0);
+			
+			this.Center = new Point(
+					(new Random()
+							.nextInt((JavaCameraView3.frameHeight-this.Radius*2) + 1) + this.Radius ),
+					new Random()
+							.nextInt((JavaCameraView3.frameWidth - this.Radius*2) + 1)+ this.Radius );
+		} else if (this.ColorE == ColorEnum.Green) {
+			this.Radius = 80;
+			this.Value = 20;
+			this.Time = 12;
+		
+			this.isCatched = false;
+			this.ColorS = new Scalar(0, 255, 0);
+			this.Center = new Point(
+new Random()
+							.nextInt((JavaCameraView3.frameHeight - this.Radius*2) + 1)+ this.Radius  ,
+					new Random()
+							.nextInt((JavaCameraView3.frameWidth - this.Radius*2) + 1) + this.Radius  );
+
+		} else if (this.ColorE == ColorEnum.Blue) {
+			this.Radius = 100;
+			this.Value = 10;
+			this.Time = 21;
+		
+			this.isCatched = false;
+			this.ColorS = new Scalar(0, 0, 255);
+			this.Center = new Point(
+					new Random()
+							.nextInt((JavaCameraView3.frameHeight - this.Radius*2) + 1)+ this.Radius  ,
+					new Random()
+							.nextInt((JavaCameraView3.frameWidth- this.Radius*2) + 1)+ this.Radius );
+
+		}
+
+
+	}
+
+}
+
+// The functions that control the game, duration of the game, the time of drawn circles, to compare a circle object with these drawn circles pupped-up on the screen spontaneously, 
+the status of circles whether they are caught or not and the end of the game in “CircleControl.java” class
+
+package com.example.deneme2;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+
+public class CircleControl {
+
+	public static boolean isStarted = false;
+	public static Thread Timer;
+	private static int GameTimeLimit = 60;
+	public static int GameTime = CircleControl.GameTimeLimit;
+	public static int Sayac = 0;
+	public static Circle TheCircle;
+	public static int Score = 0;
+	public static int Tolerance = 10;  
+	public static void StartTimer() {
+		
+		
+		CircleControl.Reset();
+		CircleControl.isStarted = true;
+		
+ 
+		CircleControl.Timer = new Thread() {
+
+			@Override
+			
+			public void run() {
+				try {
+					
+                   
+					while (0 <= CircleControl.GameTime) {
+						
+						Thread.sleep(1000);
+						
+						CircleControl.Sayac++;
+						if (CircleControl.TheCircle.Time <= CircleControl.Sayac) {
+							CircleControl.Catched(false);
+
+						}
+						
+						CircleControl.GameTime--;
+
+					}
+					
+					CircleControl.isStarted=false;
+
+				} catch (InterruptedException e) {
+					
+					 e.printStackTrace();
+				}
+
+			}
+		};
+		CircleControl.Timer.start();
+
+	}	
+public static void Reset() {
+		
+		if (CircleControl.Timer != null) {
+			if(CircleControl.Timer.isAlive())
+			CircleControl.Timer.interrupt();
+		}
+		
+		CircleControl.TheCircle = new Circle();
+		CircleControl.GameTime = CircleControl.GameTimeLimit;
+		CircleControl.isStarted = false;
+		CircleControl.Sayac = 0;
+		CircleControl.Score = 0;
+		CircleControl.Timer=null;
+
+	}
+
+	
+public static boolean CheckCircles(Point Center, int Radius) {
+
+		
+		if (((TheCircle.Center.x - Tolerance <= Center.x) && (Center.x <= TheCircle.Center.x
+				+ Tolerance))
+				&& ((TheCircle.Center.y - Tolerance <= Center.y) && (Center.y <= TheCircle.Center.y
+						+ Tolerance))) {
+			if ((TheCircle.Radius - Tolerance <= Radius)
+					&& (Radius <= TheCircle.Radius + Tolerance)) {
+				CircleControl.Catched(true);
+				return true;
+			}
+		}
+
+		
+		return false;
+	}
+
+public static void Catched(boolean isCatched) {
+        
+		if (isCatched) {
+			CircleControl.Score += CircleControl.TheCircle.Value;
+			CircleControl.Sayac = 0;
+			CircleControl.TheCircle = new Circle();
+		} else {
+
+			CircleControl.Score -=                      CircleControl.TheCircle.Value;
+			CircleControl.Sayac = 0;
+			CircleControl.TheCircle = new Circle();
+		}
+
+	}
+
+}
